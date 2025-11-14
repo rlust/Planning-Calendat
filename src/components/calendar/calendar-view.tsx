@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -26,13 +27,20 @@ type CalendarItem = {
   end?: string;
 };
 
+type ViewMode = 'month' | 'week';
+
 export function CalendarView() {
   const { state, addEvent } = useAppData();
   const [current, setCurrent] = useState(new Date());
   const [selected, setSelected] = useState(new Date());
   const [form, setForm] = useState({ title: '', start: '', end: '' });
+  const [view, setView] = useState<ViewMode>('month');
 
   const daysMatrix = useMemo(() => buildMatrix(current), [current]);
+  const weekDays = useMemo(() => {
+    const start = startOfWeek(current, { weekStartsOn: 0 });
+    return Array.from({ length: 7 }, (_, idx) => addDays(start, idx));
+  }, [current]);
 
   const itemsByDay = useMemo(() => {
     const map = new Map<string, CalendarItem[]>();
@@ -76,95 +84,207 @@ export function CalendarView() {
     setForm({ title: '', start: '', end: '' });
   };
 
+  const handleViewChange = (mode: ViewMode) => {
+    setView(mode);
+    setCurrent(selected);
+  };
+
+  const handlePrev = () => {
+    setCurrent((prev) =>
+      view === 'month' ? addMonths(prev, -1) : addDays(prev, -7),
+    );
+  };
+
+  const handleNext = () => {
+    setCurrent((prev) =>
+      view === 'month' ? addMonths(prev, 1) : addDays(prev, 7),
+    );
+  };
+
+  const title =
+    view === 'month'
+      ? format(current, 'MMMM yyyy')
+      : `${format(weekDays[0], 'MMM d')} – ${format(
+          weekDays[6],
+          weekDays[0].getMonth() === weekDays[6].getMonth() ? 'd' : 'MMM d',
+        )}`;
+
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
       <section className="rounded-3xl border border-stone-200 bg-white/80 p-4 shadow-sm">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-stone-500">
               Calendar
             </p>
-            <h2 className="text-xl font-semibold text-stone-900">
-              {format(current, 'MMMM yyyy')}
-            </h2>
+            <h2 className="text-xl font-semibold text-stone-900">{title}</h2>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-2xl border border-stone-200 bg-white p-1 text-xs font-medium">
+              {(['month', 'week'] as ViewMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={cn(
+                    'rounded-xl px-3 py-1 capitalize transition',
+                    view === mode
+                      ? 'bg-stone-900 text-white shadow'
+                      : 'text-stone-500',
+                  )}
+                  onClick={() => handleViewChange(mode)}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
             <Button
               variant="secondary"
               size="icon"
-              onClick={() => setCurrent((prev) => addMonths(prev, -1))}
-              aria-label="Previous month"
+              onClick={handlePrev}
+              aria-label="Previous period"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               variant="secondary"
               size="icon"
-              onClick={() => setCurrent((prev) => addMonths(prev, 1))}
-              aria-label="Next month"
+              onClick={handleNext}
+              aria-label="Next period"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
         </header>
-        <div className="mt-4 grid grid-cols-7 text-xs font-semibold uppercase tracking-wide text-stone-400">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-            <div key={day} className="px-2 py-1 text-center">
-              {day}
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-7 gap-2 text-sm">
-          {daysMatrix.map((day) => {
-            const key = format(day, 'yyyy-MM-dd');
-            const items = itemsByDay.get(key) ?? [];
-            const isCurrentMonth = isSameMonth(day, current);
-            const isSelected = isSameDay(day, selected);
-            return (
-              <button
-                key={key}
-                type="button"
-                className={cn(
-                  'min-h-[90px] rounded-2xl border p-2 text-left transition',
-                  isSelected
-                    ? 'border-stone-900 bg-stone-900 text-white shadow-lg'
-                    : 'border-stone-200 bg-white text-stone-700',
-                  !isCurrentMonth && 'opacity-40',
-                )}
-                onClick={() => setSelected(day)}
-              >
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span>{day.getDate()}</span>
-                  {isSameDay(day, new Date()) ? (
-                    <span className="text-[10px] uppercase tracking-wide text-stone-400">
-                      Today
-                    </span>
-                  ) : null}
+        {view === 'month' ? (
+          <>
+            <div className="mt-4 grid grid-cols-7 text-xs font-semibold uppercase tracking-wide text-stone-400">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="px-2 py-1 text-center">
+                  {day}
                 </div>
-                <div className="mt-2 space-y-1">
-                  {items.slice(0, 3).map((item) => (
-                    <div
-                      key={item.id}
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2 text-sm">
+              {daysMatrix.map((day) => {
+                const key = format(day, 'yyyy-MM-dd');
+                const items = itemsByDay.get(key) ?? [];
+                const isCurrentMonth = isSameMonth(day, current);
+                const isSelected = isSameDay(day, selected);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={cn(
+                      'min-h-[90px] rounded-2xl border p-2 text-left transition',
+                      isSelected
+                        ? 'border-stone-900 bg-stone-900 text-white shadow-lg'
+                        : 'border-stone-200 bg-white text-stone-700',
+                      !isCurrentMonth && 'opacity-40',
+                    )}
+                    onClick={() => setSelected(day)}
+                  >
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                      <span>{day.getDate()}</span>
+                      {isSameDay(day, new Date()) ? (
+                        <span className="text-[10px] uppercase tracking-wide text-stone-400">
+                          Today
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="mt-2 space-y-1">
+                      {items.slice(0, 3).map((item) => (
+                        <div
+                          key={item.id}
+                          className={cn(
+                            'truncate rounded-lg px-2 py-1 text-xs',
+                            item.type === 'event'
+                              ? 'bg-amber-100 text-amber-900'
+                              : 'bg-stone-200 text-stone-700',
+                          )}
+                        >
+                          {item.title}
+                        </div>
+                      ))}
+                      {items.length > 3 ? (
+                        <p className="text-[11px] text-stone-500">
+                          +{items.length - 3} more
+                        </p>
+                      ) : null}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-7">
+            {weekDays.map((day) => {
+              const key = format(day, 'yyyy-MM-dd');
+              const items = itemsByDay.get(key) ?? [];
+              const isSelected = isSameDay(day, selected);
+              return (
+                <div
+                  key={key}
+                  className={cn(
+                    'rounded-2xl border p-3 transition',
+                    isSelected
+                      ? 'border-stone-900 bg-stone-900 text-white'
+                      : 'border-stone-100 bg-white',
+                  )}
+                >
+                  <button
+                    className="w-full text-left"
+                    onClick={() => setSelected(day)}
+                  >
+                    <p className="text-xs uppercase tracking-wide text-stone-500">
+                      {format(day, 'EEE')}
+                    </p>
+                    <p
                       className={cn(
-                        'truncate rounded-lg px-2 py-1 text-xs',
-                        item.type === 'event'
-                          ? 'bg-amber-100 text-amber-900'
-                          : 'bg-stone-200 text-stone-700',
+                        'text-lg font-semibold',
+                        isSelected ? 'text-white' : 'text-stone-900',
                       )}
                     >
-                      {item.title}
-                    </div>
-                  ))}
-                  {items.length > 3 ? (
-                    <p className="text-[11px] text-stone-500">
-                      +{items.length - 3} more
+                      {format(day, 'MMM d')}
                     </p>
-                  ) : null}
+                  </button>
+                  <div className="mt-3 space-y-2">
+                    {items.length ? (
+                      items.map((item) => (
+                        <div
+                          key={item.id}
+                          className={cn(
+                            'rounded-xl px-3 py-2 text-xs font-medium',
+                            item.type === 'event'
+                              ? 'bg-amber-100 text-amber-900'
+                              : 'bg-stone-200 text-stone-700',
+                          )}
+                        >
+                          <p>{item.title}</p>
+                          {item.start ? (
+                            <p className="text-[11px] opacity-80">
+                              {item.start}
+                              {item.end ? ` → ${item.end}` : null}
+                            </p>
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <p
+                        className={cn(
+                          'text-xs',
+                          isSelected ? 'text-stone-200' : 'text-stone-400',
+                        )}
+                      >
+                        Free
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       <aside className="rounded-3xl border border-stone-200 bg-white/90 p-5 shadow-sm">
