@@ -81,7 +81,7 @@ export function TodoList() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-stone-200 bg-white/80 p-4 shadow-sm sm:flex sm:items-center sm:justify-between">
+      <div className="rounded-[1.5rem] border border-stone-200 bg-white/80 p-5 shadow-lg shadow-stone-900/5 sm:flex sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-wide text-stone-500">
             Quick capture
@@ -106,8 +106,8 @@ export function TodoList() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-stone-200 bg-white/80 p-5 shadow-sm">
-        <div className="flex flex-wrap gap-4 text-sm text-stone-500">
+      <div className="rounded-[1.5rem] border border-stone-200 bg-white/80 p-6 shadow-sm">
+        <div className="flex flex-wrap gap-5 text-xs uppercase tracking-wide text-stone-500">
           <span>
             {state.tasks.filter((task) => task.completed).length} completed
           </span>
@@ -119,11 +119,11 @@ export function TodoList() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-5">
           {sections.map((section) => (
             <section key={section.key}>
               <header
-                className="flex cursor-pointer items-center justify-between rounded-2xl border border-stone-100 bg-stone-50/90 px-4 py-2"
+                className="flex cursor-pointer items-center justify-between rounded-[1.3rem] border border-stone-100 bg-stone-50/90 px-4 py-2"
                 onClick={() =>
                   setCollapsed((prev) => ({
                     ...prev,
@@ -203,10 +203,10 @@ function TaskRow({
   const overdue =
     task.dueDate && parseISO(task.dueDate) < startOfDay(new Date());
   return (
-    <li className="flex items-center gap-4 rounded-2xl border border-stone-100 bg-white px-4 py-3 shadow-sm">
+    <li className="flex items-center gap-4 rounded-[1.25rem] border border-stone-100 bg-white px-4 py-3 shadow-sm shadow-stone-900/5">
       <button
         className={cn(
-          'h-5 w-5 rounded-full border-2',
+          'h-5 w-5 rounded-full border-2 transition',
           task.completed
             ? 'border-stone-900 bg-stone-900 text-white'
             : 'border-stone-300',
@@ -219,8 +219,8 @@ function TaskRow({
       <div className="flex flex-1 flex-col">
         <p
           className={cn(
-            'text-sm font-medium',
-            task.completed ? 'text-stone-400 line-through' : 'text-stone-800',
+            'text-sm font-semibold',
+            task.completed ? 'text-stone-400 line-through' : 'text-stone-900',
           )}
         >
           {task.title}
@@ -228,7 +228,7 @@ function TaskRow({
         {task.dueDate ? (
           <p
             className={cn(
-              'text-xs',
+              'text-xs uppercase tracking-wide',
               overdue ? 'text-red-500' : 'text-stone-500',
             )}
           >
@@ -282,49 +282,51 @@ function TaskModal({
 
   return (
     <Modal open onClose={onClose} title="Edit task">
-      <Input
-        placeholder="Title"
-        value={draft.title}
-        onChange={(event) =>
-          onChangeDraft({ ...draft, title: event.target.value })
-        }
-      />
-      <Textarea
-        placeholder="Notes"
-        rows={4}
-        value={draft.notes}
-        onChange={(event) =>
-          onChangeDraft({ ...draft, notes: event.target.value })
-        }
-      />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="text-xs uppercase tracking-wide text-stone-500">
-            Due date
-          </label>
-          <Input
-            type="date"
-            value={draft.dueDate}
-            onChange={(event) =>
-              onChangeDraft({ ...draft, dueDate: event.target.value })
-            }
-          />
-        </div>
-        <div>
-          <label className="text-xs uppercase tracking-wide text-stone-500">
-            Priority
-          </label>
-          <select
-            className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm"
-            value={draft.priority}
-            onChange={(event) =>
-              onChangeDraft({ ...draft, priority: event.target.value })
-            }
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+      <div className="space-y-4">
+        <Input
+          placeholder="Title"
+          value={draft.title}
+          onChange={(event) =>
+            onChangeDraft({ ...draft, title: event.target.value })
+          }
+        />
+        <Textarea
+          placeholder="Notes"
+          rows={4}
+          value={draft.notes}
+          onChange={(event) =>
+            onChangeDraft({ ...draft, notes: event.target.value })
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-xs uppercase tracking-wide text-stone-500">
+              Due date
+            </label>
+            <Input
+              type="date"
+              value={draft.dueDate}
+              onChange={(event) =>
+                onChangeDraft({ ...draft, dueDate: event.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide text-stone-500">
+              Priority
+            </label>
+            <select
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2.5 text-sm"
+              value={draft.priority}
+              onChange={(event) =>
+                onChangeDraft({ ...draft, priority: event.target.value })
+              }
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
         </div>
       </div>
       <div className="flex justify-end gap-2 pt-4">

@@ -111,7 +111,7 @@ export function CalendarView() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-      <section className="rounded-3xl border border-stone-200 bg-white/80 p-4 shadow-sm">
+      <section className="rounded-[1.5rem] border border-stone-200 bg-white/80 p-5 shadow-sm shadow-stone-900/5">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-stone-500">
@@ -164,7 +164,7 @@ export function CalendarView() {
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-2 text-sm">
+            <div className="grid grid-cols-7 gap-3 text-sm">
               {daysMatrix.map((day) => {
                 const key = format(day, 'yyyy-MM-dd');
                 const items = itemsByDay.get(key) ?? [];
@@ -226,7 +226,7 @@ export function CalendarView() {
                 <div
                   key={key}
                   className={cn(
-                    'rounded-2xl border p-3 transition',
+                    'rounded-[1.25rem] border p-3 transition',
                     isSelected
                       ? 'border-stone-900 bg-stone-900 text-white'
                       : 'border-stone-100 bg-white',
@@ -248,7 +248,7 @@ export function CalendarView() {
                       {format(day, 'MMM d')}
                     </p>
                   </button>
-                  <div className="mt-3 space-y-2">
+                <div className="mt-3 space-y-2">
                     {items.length ? (
                       items.map((item) => (
                         <div
@@ -287,7 +287,7 @@ export function CalendarView() {
         )}
       </section>
 
-      <aside className="rounded-3xl border border-stone-200 bg-white/90 p-5 shadow-sm">
+      <aside className="rounded-[1.5rem] border border-stone-200 bg-white/90 p-6 shadow-sm shadow-stone-900/10">
         <p className="text-xs uppercase tracking-wide text-stone-500">
           {format(selected, 'EEE, MMM d')}
         </p>

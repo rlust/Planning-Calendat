@@ -63,7 +63,7 @@ export function KanbanBoard() {
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
       {columnCards.map(({ column, cards }) => (
         <KanbanColumnComponent
           key={column.id}
@@ -124,9 +124,9 @@ function KanbanColumnComponent({
   };
 
   return (
-    <div className="flex flex-col rounded-2xl border border-stone-200 bg-white/80 p-4 shadow-sm">
+    <div className="flex flex-col rounded-[1.5rem] border border-stone-200 bg-white/80 p-5 shadow-md shadow-stone-900/5">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-stone-500">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-500">
           {column.title}
         </h3>
         <Button
@@ -139,7 +139,7 @@ function KanbanColumnComponent({
         </Button>
       </div>
       <div
-        className="mt-4 flex flex-1 flex-col gap-3"
+        className="mt-5 flex flex-1 flex-col gap-4"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => handleDrop(event)}
       >
@@ -155,7 +155,7 @@ function KanbanColumnComponent({
         ))}
       </div>
       {adding ? (
-        <div className="mt-4 space-y-2 rounded-xl border border-dashed border-stone-300 bg-stone-50/80 p-3">
+        <div className="mt-5 space-y-3 rounded-[1.25rem] border border-dashed border-stone-300 bg-stone-50/80 p-4">
           <Input
             placeholder="Card title"
             value={title}
@@ -191,8 +191,8 @@ function KanbanCardComponent({
   onEdit: () => void;
 }) {
   return (
-    <article
-      className="rounded-2xl border border-stone-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+        <article
+          className="rounded-2xl border border-stone-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
       draggable
       onDragStart={(event) => {
         event.dataTransfer.setData('text/card-id', card.id);
@@ -201,11 +201,15 @@ function KanbanCardComponent({
       onClick={onEdit}
     >
       <div className="flex items-start justify-between gap-3">
-        <h4 className="text-sm font-semibold text-stone-800">{card.title}</h4>
+        <h4 className="text-base font-semibold text-stone-900 tracking-tight">
+          {card.title}
+        </h4>
         <PenSquare className="h-4 w-4 text-stone-300" />
       </div>
       {card.description ? (
-        <p className="mt-2 text-xs text-stone-500 line-clamp-3">{card.description}</p>
+        <p className="mt-2 text-sm text-stone-500 leading-snug line-clamp-3">
+          {card.description}
+        </p>
       ) : null}
       <div className="mt-3 flex flex-wrap gap-2">
         {card.tags?.map((tag) => (
@@ -253,45 +257,47 @@ function CardEditor({
 
   return (
     <Modal open={Boolean(card)} onClose={onClose} title="Edit card">
-      <Input
-        placeholder="Title"
-        value={draft.title}
-        onChange={(event) =>
-          onChangeDraft({ ...draft, title: event.target.value })
-        }
-      />
-      <Textarea
-        placeholder="Details"
-        rows={4}
-        value={draft.description}
-        onChange={(event) =>
-          onChangeDraft({ ...draft, description: event.target.value })
-        }
-      />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="text-xs uppercase tracking-wide text-stone-500">
-            Due date
-          </label>
-          <Input
-            type="date"
-            value={draft.dueDate}
-            onChange={(event) =>
-              onChangeDraft({ ...draft, dueDate: event.target.value })
-            }
-          />
-        </div>
-        <div>
-          <label className="text-xs uppercase tracking-wide text-stone-500">
-            Tags
-          </label>
-          <Input
-            placeholder="Design, QA"
-            value={draft.tags}
-            onChange={(event) =>
-              onChangeDraft({ ...draft, tags: event.target.value })
-            }
-          />
+      <div className="space-y-4">
+        <Input
+          placeholder="Title"
+          value={draft.title}
+          onChange={(event) =>
+            onChangeDraft({ ...draft, title: event.target.value })
+          }
+        />
+        <Textarea
+          placeholder="Details"
+          rows={4}
+          value={draft.description}
+          onChange={(event) =>
+            onChangeDraft({ ...draft, description: event.target.value })
+          }
+        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-xs uppercase tracking-wide text-stone-500">
+              Due date
+            </label>
+            <Input
+              type="date"
+              value={draft.dueDate}
+              onChange={(event) =>
+                onChangeDraft({ ...draft, dueDate: event.target.value })
+              }
+            />
+          </div>
+          <div>
+            <label className="text-xs uppercase tracking-wide text-stone-500">
+              Tags
+            </label>
+            <Input
+              placeholder="Design, QA"
+              value={draft.tags}
+              onChange={(event) =>
+                onChangeDraft({ ...draft, tags: event.target.value })
+              }
+            />
+          </div>
         </div>
       </div>
       <div className="flex items-center justify-between pt-4">

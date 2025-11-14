@@ -33,7 +33,7 @@ export function Modal({
       />
       <div
         className={cn(
-          'relative z-10 w-full max-w-lg rounded-2xl border border-stone-200 bg-stone-50 p-6 shadow-xl',
+          'relative z-10 w-full max-w-lg rounded-[1.5rem] border border-stone-200 bg-stone-50 p-6 shadow-2xl shadow-stone-950/10 dark:border-stone-800 dark:bg-stone-900/95',
           className,
         )}
       >
